@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+ <url>
+  <loc>https://steekam.me</loc>
+  <lastmod>2020-02-25T20:45:09+00:00</lastmod>
+  <changefreq>daily</changefreq>
+ </url>
+ <url>
+  <loc>https://steekam.me/blog/feed.atom</loc>
+  <lastmod>2020-02-25T20:45:09+00:00</lastmod>
+  <changefreq>daily</changefreq>
+ </url>
+ <url>
+  <loc>https://steekam.me/blog/categories/feature</loc>
+  <lastmod>2020-02-25T20:45:09+00:00</lastmod>
+  <changefreq>daily</changefreq>
+ </url>
+ <url>
+  <loc>https://steekam.me/blog/categories/configuration</loc>
+  <lastmod>2020-02-25T20:45:09+00:00</lastmod>
+  <changefreq>daily</changefreq>
+ </url>
+</urlset>
