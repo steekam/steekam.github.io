@@ -1,0 +1,7 @@
+tree:
+  -
+    title: 'Work Journal'
+    url: /journal
+  -
+    title: Articles
+    url: /articles
