@@ -1,16 +1,32 @@
 <!doctype html>
 <html lang="{{ site:short_locale }}">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ title ?? site:name }}</title>
-        <link rel="stylesheet" href="{{ mix src='css/tailwind.css' }}">
-    </head>
-    <body class="bg-gray-100 font-sans leading-normal text-grey-800">
-        <div class="mx-auto px-2 h-screen flex items-center justify-center">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title ?? site:name }}</title>
+    <link rel="stylesheet" href="{{ mix src='css/tailwind.css' }}">
+</head>
+
+<body class="font-sans text-base antialiased text-gray-900 bg-gray-100">
+    <header class="flex items-center justify-between max-w-4xl px-4 pt-8 mx-auto sm:px-6 lg:px-8">
+        <div>
+            <a class="text-lg font-light tracking-tight sm:text-2xl text-primary-700" href="/">
+                Kamau <span class="font-semibold">Wanyee</span>
+            </a>
+        </div>
+        <nav class="sm:text-lg">
+            <a class="transition text-primary-700 hover:text-primary-600" href="/articles">Articles</a>
+        </nav>
+    </header>
+
+    <main class="px-4 max-w-7xl sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto mt-10">
             {{ template_content }}
         </div>
-        <script src="{{ mix src='/js/site.js' }}"></script>
-    </body>
+    </main>
+    <script src="{{ mix src='/js/site.js' }}"></script>
+</body>
+
 </html>
