@@ -9,23 +9,24 @@
     <link rel="stylesheet" href="{{ mix src='css/tailwind.css' }}">
 </head>
 
-<body class="font-sans text-base antialiased text-gray-900 bg-gray-100">
-    <header class="flex items-center justify-between max-w-4xl px-4 pt-8 mx-auto sm:px-6 lg:px-8">
-        <div>
-            <a class="text-lg font-light tracking-tight sm:text-2xl text-primary-700" href="/">
-                Kamau <span class="font-semibold">Wanyee</span>
-            </a>
+<body class="flex flex-col min-h-screen font-sans text-base antialiased text-gray-800 bg-gray-100">
+    <header>
+        <div class="flex items-center justify-between max-w-screen-lg px-4 pt-8 mx-auto sm:px-6 lg:px-8">
+            <div>
+                <a class="text-lg font-light tracking-tight sm:text-2xl text-primary-700" href="/">
+                    Kamau <span class="font-semibold">Wanyee</span>
+                </a>
+            </div>
+            <nav class="sm:text-lg">
+                <a class="transition text-primary-700 hover:text-primary-600" href="/articles">Articles</a>
+            </nav>
         </div>
-        <nav class="sm:text-lg">
-            <a class="transition text-primary-700 hover:text-primary-600" href="/articles">Articles</a>
-        </nav>
     </header>
 
-    <main class="px-4 max-w-7xl sm:px-6 lg:px-8">
-        <div class="max-w-3xl mx-auto mt-10">
-            {{ template_content }}
-        </div>
+    <main class="flex-1">
+        {{ template_content }}
     </main>
+
     <script src="{{ mix src='/js/site.js' }}"></script>
 </body>
 

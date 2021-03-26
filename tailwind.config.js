@@ -14,10 +14,12 @@ module.exports = {
             transparent: 'transparent',
             current: 'currentColor',
             gray: colors.coolGray,
-            primary: colors.cyan
+            primary: colors.cyan,
         },
         extend: {},
     },
     variants: {},
-    plugins: [],
+    plugins: [
+        require('@tailwindcss/typography'),
+    ],
 }
