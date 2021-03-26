@@ -15,6 +15,7 @@ jobs:
       - name: Install and Build 🔧
         run: |
           npm install
+          npm run tail-build-prod
           npm run build
           echo "steekam.me" > CNAME
       - name: Deploy 🚀
