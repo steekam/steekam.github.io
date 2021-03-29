@@ -1,5 +1,12 @@
 title: Articles
+template: articles/show
+layout: layout
+taxonomies:
+  - tags
 revisions: false
+route: '/article/{slug}'
+date: true
+sort_dir: asc
 date_behavior:
   past: public
   future: private
