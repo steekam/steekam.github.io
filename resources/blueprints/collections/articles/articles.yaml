@@ -11,6 +11,18 @@ sections:
           validate:
             - required
       -
+        handle: description
+        field:
+          character_limit: '200'
+          antlers: false
+          display: Description
+          type: textarea
+          icon: textarea
+          instructions: 'Summarize the article'
+          listable: hidden
+          validate:
+            - required
+      -
         handle: content
         field:
           restrict: false
@@ -41,27 +53,6 @@ sections:
         field:
           type: date
           required: true
-          validate:
-            - required
-      -
-        handle: template
-        field:
-          hide_partials: true
-          display: Template
-          type: template
-          icon: template
-          listable: hidden
-          validate:
-            - required
-      -
-        handle: author
-        field:
-          max_items: 1
-          mode: select
-          display: Author
-          type: users
-          icon: users
-          listable: hidden
           validate:
             - required
       -
