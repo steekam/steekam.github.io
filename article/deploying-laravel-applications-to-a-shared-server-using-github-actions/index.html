@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Deploying Laravel applications to a shared server using GitHub Actions</title>
+    <link rel="stylesheet" href="/css/tailwind.css?id=d2e39fb9cced20a40628">
+</head>
+
+<body class="flex flex-col min-h-screen font-sans text-base antialiased text-gray-800 bg-gray-50">
+    <header>
+        <div class="flex items-center justify-between max-w-4xl px-4 pt-8 mx-auto sm:px-6 lg:px-8">
+            <div>
+                <a class="text-lg font-light tracking-tight sm:text-2xl text-primary-700" href="/">
+                    Kamau <span class="font-semibold">Wanyee</span>
+                </a>
+            </div>
+            <nav class="sm:text-lg">
+                <a class="transition text-primary-700 hover:text-primary-600" href="/articles">Articles</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
+        <div class="px-4 pb-20 mt-14 sm:px-6 lg:px-8">
+    <div class="space-y-3">
+        <p class="text-center text-gray-600">September 20th, 2020</p>
+        <h2 class="text-3xl font-extrabold leading-8 tracking-tight text-center text-gray-900 sm:text-4xl">
+            Deploying Laravel applications to a shared server using GitHub Actions
+        </h2>
+        <div class="flex flex-wrap items-center justify-center max-w-lg mx-auto space-x-3">
+                            <p class="font-semibold text-primary-600">#github-actions</p>
+                            <p class="font-semibold text-primary-600">#laravel</p>
+            
+
+        </div>
+    </div>
+
+    <div class="mt-10 prose prose-primary xl:prose-lg">
+        <h2>Introduction</h2>
+<p>I recently worked on a project where the staging server was on a shared hosting plan with users having very limited privileges. At the time I would push updates using <a href="https://github.com/git-ftp/git-ftp">git-FTP</a>, a tool that uses git to upload only changes to the FTP server. Without automation, the git-FTP initial push process would take me several hours. I decided to try out GitHub Actions to offload the workload from my machine.</p>
+<p>This post covers my workflow file which uses a combination of SSH and git-FTP for the staging deployment job. I am assuming that you have some knowledge of <a href="https://github.com/features/actions">GitHub Actions</a>.</p>
+<h2>Before we get to the workflow</h2>
+<p>The workflow connects to the server through SSH to run commands and files are transferred through FTP. On your GitHub account, you need to have saved secrets for these credentials:</p>
+<ul>
+<li>FTP user credentials.</li>
+<li>SSH private key.</li>
+</ul>
+<p>There were some issues with installing composer on the staging server and I did not want to track the dependencies on git, so before deployment, I download the dependencies and create an archive.</p>
+<p>Also note that this post covers the deploy job after the initial setup of git-FTP that creates a log file on the staging server.</p>
+<h2>The Staging Workflow</h2>
+<p>The 3 jobs on the workflow file:</p>
+<ul>
+<li>
+<p><strong>setup</strong> — cleans up the vendor directory on the server.</p>
+<pre><code class="language-yaml">setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove vendor directory
+        uses: fifsky/ssh-action@master
+        with:
+          command: |
+            cd www/site_directory/
+            [ -d ./vendor ] &amp;&amp; rm -rf ./vendor
+          host: https://staging-server.com
+          user: system_user
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+</code></pre>
+</li>
+<li>
+<p><strong>deploy</strong> — Download dependencies and deploy the site.</p>
+<pre><code class="language-yaml">deploy:
+    name: Deploy to the staging server
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v2.1.0
+        with:
+          fetch-depth: 2
+
+      - name: Install Composer Dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+
+      - name: Create zipped vendor directory
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./vendor.zip ./vendor
+
+      - name: FTP-Deploy-Action
+        uses: SamKirkland/FTP-Deploy-Action@3.1.1
+        with:
+          ftp-server: ftp://ADDRESS_HERE
+          ftp-username: FTP_USER
+          ftp-password: ${{ secrets.FTP_PASSWORD }}
+</code></pre>
+<p>Since <code>[vendor.zip](http://vendor.zip)</code> isn’t tracked using git, it is added to the <code>.git-ftp-include</code> file to be always pushed. Creating an archive lets the transfer to be a single file. This actually reduced my workflow run from minutes to a few seconds, which I thought was a pretty cool trick.</p>
+</li>
+<li>
+<p><strong>post-deploy</strong> — Clean up <code>[vendor.zip](http://vendor.zip)</code> and run several artisan commands.</p>
+<pre><code class="language-yaml">post-deploy:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Run migrations and seeders, clear cache for views, config and routes
+        uses: fifsky/ssh-action@master
+        with:
+          command: |
+            cd www/site_dir/
+            unzip -qq ./vendor.zip
+            rm -f vendor.zip
+            php artisan migrate:fresh --seed
+            php artisan config:clear
+            php artisan view:clear
+            php artisan route:cache
+          host: https://SERVER_ADDRESS
+          user: USER
+          key: ${{ secrets.USER_PRIVATE_KEY }}
+</code></pre>
+</li>
+</ul>
+<h2>Running the Workflow</h2>
+<p>In the project I set the workflow to run on push to a staging branch which is only gets updates from master pull requests. Here is the whole workflow file.</p>
+<pre><code class="language-yaml">name: Pushing to the staging server
+
+on:
+  push:
+    branches:
+      - staging
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove vendor directory
+        uses: fifsky/ssh-action@master
+        with:
+          command: |
+            cd www/site_dir/
+            [ -d ./vendor ] &amp;&amp; rm -rf ./vendor
+          host: https://ADDRESS_HERE
+          user: USER
+          key: ${{ secrets.USER_PRIVATE_KEY }}
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v2.1.0
+        with:
+          fetch-depth: 2
+
+      - name: Install Composer Dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+
+      - name: Create zipped vendor directory
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./vendor.zip ./vendor
+
+      - name: FTP-Deploy-Action
+        uses: SamKirkland/FTP-Deploy-Action@3.1.1
+        with:
+          ftp-server: ftp://ADDRESS_HERE/
+          ftp-username: FTP_USER
+          ftp-password: ${{ secrets.FTP_PASSWORD }}
+
+  post-deploy:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Run migrations and seeders, clear cache for views, config and routes
+        uses: fifsky/ssh-action@master
+        with:
+          command: |
+            cd www/site_dir/
+            unzip -qq ./vendor.zip
+            rm -f vendor.zip
+            php artisan migrate:fresh --seed
+            php artisan config:clear
+            php artisan view:clear
+            php artisan route:cache
+          host: https://SERVER_ADDRESS
+          user: USER
+          key: ${{ secrets.USER_PRIVATE_KEY }}
+</code></pre>
+<h2>Conclusion</h2>
+<p>I would not recommend using this workflow in its current state for deployments to a production server since users might get unintended interruptions when you delete the vendor directory in the setup job. In the scenario where you have composer installed on your server, you would get rid of the setup job and the dependency installation step in the deployment job. It is also a good idea to set the application in maintenance mode when you are updating the composer dependencies or making a deployment update.</p>
+
+    </div>
+</div>
+
+    </main>
+
+    
+    <script src="/js/site.js?id=2ed55bccf8833dfcc77f"></script>
+</body>
+
+</html>
