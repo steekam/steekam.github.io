@@ -17,7 +17,7 @@ jobs:
           npm run production
 
       - name: Install PHP dependencies
-        run: composer install --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: Build static site files 🔧
         run: composer build
