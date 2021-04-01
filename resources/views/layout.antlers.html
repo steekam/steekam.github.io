@@ -26,27 +26,6 @@
     <main class="flex-1 max-w-4xl px-4 mx-auto sm:px-6 lg:px-8">
         {{ template_content }}
     </main>
-
-    {{ if !hide_footer }}
-    <footer class="flex items-center justify-center gap-4 px-4 py-10 text-xl font-bold bg-gray-100 sm:px-6">
-        <a class="flex items-center gap-1 transition hover:text-primary-600 text-primary-700"
-            href="http://github.com/steekam" title="Check out my repos">
-            GitHub
-        </a>
-
-        <a class="flex items-center gap-1 transition hover:text-primary-600 text-primary-700"
-            href="http://twitter.com/mauwanyee" title="Let's connect">
-            Twitter
-        </a>
-
-        <a class="flex items-center gap-1 transition hover:text-primary-600 text-primary-700"
-            href="https://dev.to/steekam" title="I cross-post some articles here at times.">
-            DEV Community
-        </a>
-    </footer>
-    {{ /if }}
-
-    <script src="{{ mix src='/js/site.js' }}"></script>
 </body>
 
 </html>
